@@ -10,6 +10,15 @@
   <img src="https://img.shields.io/badge/Deployment-Railway%20%2F%20Vercel-black?style=for-the-badge&logo=vercel" />
 </p>
 
+<p align="center">
+  <a href="https://frontend-beta-amber-s2mrth6g7n.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/🌐%20Live%20App-Clinicore-2EA44F?style=for-the-badge" alt="Live Demo" />
+  </a>
+  <a href="https://cheerful-balance-production-e7e3.up.railway.app/health" target="_blank">
+    <img src="https://img.shields.io/badge/⚡%20Backend%20API-Railway-blueviolet?style=for-the-badge" alt="API Status" />
+  </a>
+</p>
+
 A modern, scalable, multi-tenant SaaS application built for healthcare providers, doctors, and clinic administrators to streamline patient records, appointments, AI voice calls, mood analytics, and medical operations.
 
 </div>
@@ -185,6 +194,12 @@ VITE_API_BASE_URL=http://localhost:3000
   - Start Command: `npx prisma migrate deploy && npm start`
 * **Frontend (Vercel)**:
   - Deployed as a static Vite SPA connected via environment variables (`VITE_API_URL`).
+
+---
+
+## 🌐 Live Deployments
+- **Frontend App:** [Clinicore Dashboard](https://frontend-beta-amber-s2mrth6g7n.vercel.app)
+- **Backend REST API:** [Clinicore API Server](https://cheerful-balance-production-e7e3.up.railway.app/health)
 
 ---
 
