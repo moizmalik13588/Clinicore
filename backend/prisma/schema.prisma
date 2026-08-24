@@ -1,0 +1,341 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//
+// ─── ENUMS ────────────────────────────────────────────────────────────────
+//
+
+enum UserRole {
+  owner
+  staff
+  doctor
+}
+
+enum OtpType {
+  email_verify
+  login
+}
+
+//
+// ─── CLINICS ──────────────────────────────────────────────────────────────
+//
+
+model Clinic {
+  id               String   @id @default(uuid())
+  name             String
+  phone            String?
+  email            String?
+  address          String?
+  businessHours    Json?    @map("business_hours")
+  apptDurationMins Int      @default(30) @map("appt_duration_mins")
+  retellAgentId    String?  @map("retell_agent_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  users         User[]
+  doctors       Doctor[]
+  patients      Patient[]
+  appointments  Appointment[]
+  calls         Call[]
+  moodEvents    MoodEvent[]
+  visitHistory  VisitHistory[]
+  revenueEvents RevenueEvent[]
+  dailyReports  DailyReport[]
+
+  @@map("clinics")
+}
+
+//
+// ─── USERS ────────────────────────────────────────────────────────────────
+//
+
+model User {
+  id           String   @id @default(uuid())
+  clinicId     String   @map("clinic_id")
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         UserRole @default(staff)
+  isActive     Boolean  @default(true) @map("is_active")
+  isVerified   Boolean  @default(false) @map("is_verified")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  clinic        Clinic         @relation(fields: [clinicId], references: [id])
+  refreshTokens RefreshToken[]
+  otps          Otp[]
+
+  @@map("users")
+}
+
+//
+// ─── OTPS ─────────────────────────────────────────────────────────────────
+//
+
+model Otp {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  otpHash   String   @map("otp_hash")
+  type      OtpType  @default(email_verify)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("otps")
+}
+
+//
+// ─── REFRESH TOKENS ───────────────────────────────────────────────────────
+//
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+//
+/// ─── DOCTORS ──────────────────────────────────────────────────────────────
+
+model Doctor {
+  id        String   @id @default(uuid())
+  clinicId  String   @map("clinic_id")
+  name      String
+  specialty String?
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  clinic       Clinic               @relation(fields: [clinicId], references: [id])
+  appointments Appointment[]
+  visitHistory VisitHistory[]
+  patients     Patient[]            @relation("PreferredDoctor")
+  availability DoctorAvailability[]
+
+  @@map("doctors")
+}
+
+// ─── Doctor Availability ──────────────────────────────────────────────────────
+model DoctorAvailability {
+  id                  String @id @default(uuid())
+  doctorId            String @map("doctor_id")
+  dayOfWeek           Int    @map("day_of_week") // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+  startTime           String @map("start_time") // "09:00:00"
+  endTime             String @map("end_time") // "17:00:00"
+  slotDurationMinutes Int    @default(30) @map("slot_duration_minutes")
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@map("doctor_availability")
+}
+
+//
+// ─── PATIENTS ─────────────────────────────────────────────────────────────
+//
+
+model Patient {
+  id                String    @id @default(uuid())
+  clinicId          String    @map("clinic_id")
+  name              String
+  phone             String
+  email             String?
+  dateOfBirth       DateTime? @map("date_of_birth")
+  gender            String?
+  preferredDoctorId String?   @map("preferred_doctor_id")
+  totalVisits       Int       @default(0) @map("total_visits")
+  lastVisitDate     DateTime? @map("last_visit_date")
+  lastComplaint     String?   @map("last_complaint")
+  lastMood          String?   @map("last_mood")
+  crmTags           String[]  @map("crm_tags")
+  preferredTimeSlot String?   @map("preferred_time_slot")
+  notes             String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  clinic          Clinic         @relation(fields: [clinicId], references: [id])
+  preferredDoctor Doctor?        @relation("PreferredDoctor", fields: [preferredDoctorId], references: [id])
+  appointments    Appointment[]
+  calls           Call[]
+  moodEvents      MoodEvent[]
+  visitHistory    VisitHistory[]
+  revenueEvents   RevenueEvent[]
+
+  @@unique([phone, clinicId])
+  @@index([phone, clinicId], name: "idx_patients_phone")
+  @@map("patients")
+}
+
+//
+// ─── APPOINTMENTS ─────────────────────────────────────────────────────────
+//
+
+model Appointment {
+  id              String   @id @default(uuid())
+  clinicId        String   @map("clinic_id")
+  patientId       String   @map("patient_id")
+  doctorId        String?  @map("doctor_id")
+  appointmentDate DateTime @map("appointment_date")
+  duration        Int      @default(30)
+  status          String   @default("scheduled")
+  type            String   @default("general")
+  notes           String?
+  reminderSent    Boolean  @default(false) @map("reminder_sent")
+  calendarEventId String?  @map("calendar_event_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  clinic        Clinic         @relation(fields: [clinicId], references: [id])
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  doctor        Doctor?        @relation(fields: [doctorId], references: [id])
+  visitHistory  VisitHistory[]
+  revenueEvents RevenueEvent[]
+
+  @@map("appointments")
+}
+
+//
+// ─── CALLS ────────────────────────────────────────────────────────────────
+//
+
+model Call {
+  id           String    @id @default(uuid())
+  clinicId     String    @map("clinic_id")
+  patientId    String?   @map("patient_id")
+  retellCallId String?   @unique @map("retell_call_id")
+  fromNumber   String?   @map("from_number")
+  toNumber     String?   @map("to_number")
+  direction    String    @default("inbound")
+  status       String    @default("in_progress")
+  duration     Int?
+  transcript   String?   @db.Text
+  dominantMood String?   @map("dominant_mood")
+  avgIntensity Float?    @map("avg_intensity")
+  startedAt    DateTime? @map("started_at")
+  endedAt      DateTime? @map("ended_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  clinic     Clinic      @relation(fields: [clinicId], references: [id])
+  patient    Patient?    @relation(fields: [patientId], references: [id])
+  moodEvents MoodEvent[]
+
+  @@map("calls")
+}
+
+//
+// ─── VISIT HISTORY ────────────────────────────────────────────────────────
+//
+
+model VisitHistory {
+  id             String   @id @default(uuid())
+  clinicId       String   @map("clinic_id")
+  patientId      String   @map("patient_id")
+  appointmentId  String?  @map("appointment_id")
+  doctorId       String?  @map("doctor_id")
+  visitDate      DateTime @map("visit_date")
+  chiefComplaint String?  @map("chief_complaint")
+  diagnosis      String?
+  treatmentNotes String?  @map("treatment_notes")
+  followUpDays   Int?     @map("follow_up_days")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  clinic      Clinic       @relation(fields: [clinicId], references: [id])
+  patient     Patient      @relation(fields: [patientId], references: [id])
+  appointment Appointment? @relation(fields: [appointmentId], references: [id])
+  doctor      Doctor?      @relation(fields: [doctorId], references: [id])
+
+  @@map("visit_history")
+}
+
+//
+// ─── MOOD EVENTS ──────────────────────────────────────────────────────────
+//
+
+model MoodEvent {
+  id                  String   @id @default(uuid())
+  clinicId            String   @map("clinic_id")
+  callId              String   @map("call_id")
+  patientId           String?  @map("patient_id")
+  detectedMood        String   @map("detected_mood")
+  intensity           Float
+  confidence          Float    @default(0.8)
+  timestampOffset     Int      @map("timestamp_offset")
+  aiActionTaken       String?  @map("ai_action_taken")
+  transcriptExcerpt   String?  @map("transcript_excerpt") @db.VarChar(300)
+  escalationTriggered Boolean  @default(false) @map("escalation_triggered")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  clinic  Clinic   @relation(fields: [clinicId], references: [id])
+  call    Call     @relation(fields: [callId], references: [id])
+  patient Patient? @relation(fields: [patientId], references: [id])
+
+  @@map("mood_events")
+}
+
+// ─── Google Tokens ────────────────────────────────────────────────────────────
+model GoogleToken {
+  id           String   @id @default(uuid())
+  clinicId     String   @unique @map("clinic_id")
+  accessToken  String   @map("access_token")
+  refreshToken String   @map("refresh_token")
+  expiryDate   BigInt   @map("expiry_date")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("google_tokens")
+}
+
+// ─── Revenue Events ───────────────────────────────────────────────────────────
+model RevenueEvent {
+  id            String   @id @default(uuid())
+  clinicId      String   @map("clinic_id")
+  patientId     String?  @map("patient_id")
+  appointmentId String?  @map("appointment_id")
+  amount        Decimal  @db.Decimal(10, 2)
+  type          String   @default("consultation")
+  // new_patient | returning_patient | no_show_recovered | consultation
+  description   String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  clinic      Clinic       @relation(fields: [clinicId], references: [id])
+  patient     Patient?     @relation(fields: [patientId], references: [id])
+  appointment Appointment? @relation(fields: [appointmentId], references: [id])
+
+  @@index([clinicId, createdAt(sort: Desc)])
+  @@map("revenue_events")
+}
+
+// ─── Daily Reports ────────────────────────────────────────────────────────────
+model DailyReport {
+  id              String   @id @default(uuid())
+  clinicId        String   @map("clinic_id")
+  reportDate      DateTime @map("report_date") // kal ki date
+  totalCalls      Int      @default(0) @map("total_calls")
+  totalMoodEvents Int      @default(0) @map("total_mood_events")
+  calmRate        Float    @default(0) @map("calm_rate")
+  angryRate       Float    @default(0) @map("angry_rate")
+  anxiousRate     Float    @default(0) @map("anxious_rate")
+  frustratedRate  Float    @default(0) @map("frustrated_rate")
+  happyRate       Float    @default(0) @map("happy_rate")
+  flaggedCalls    Int      @default(0) @map("flagged_calls")
+  dominantMood    String   @default("calm") @map("dominant_mood")
+  alertSent       Boolean  @default(false) @map("alert_sent")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  clinic Clinic @relation(fields: [clinicId], references: [id])
+
+  @@unique([clinicId, reportDate])
+  @@map("daily_reports")
+}
