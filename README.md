@@ -55,8 +55,9 @@ Clinicore features a 24/7 autonomous AI Voice Receptionist powered by Vapi.ai. I
 * **24/7 Autonomous Receptionist:** Answers incoming patient calls instantly, eliminating phone wait times and front-desk bottlenecks.
 * **Real-Time Slot Verification:** Dynamically queries doctor availability slots (`DoctorAvailability`) during live conversation before scheduling.
 * **Instant Appointment Booking:** Automatically writes appointment records directly into PostgreSQL during the call.
+* **Appointment Cancellation:** Automatically processes and cancels existing patient appointments via voice command.
 * **Patient Verification & CRM Auto-Creation:** Searches existing records by caller phone number or auto-generates a new patient profile with chief complaints.
-* **Real-Time Call Transcript Ingestion:** Streams and stores full audio call transcripts for medical review and compliance.
+* **Real-Time Call Transcript Ingestion:** Streams and stores full audio call transcripts for review and patient interaction history.
 * **Automated Tool Callbacks (`/api/vapi/webhook`):** Triggers backend handlers to dispatch Twilio SMS confirmations and sync Google Calendar events upon call completion.
 
 ---
@@ -85,7 +86,7 @@ Clinicore features a 24/7 autonomous AI Voice Receptionist powered by Vapi.ai. I
 
 ### 🧠 5. Real-Time Mood & Sentiment Analytics Engine
 * **AI Emotion Scoring:** Evaluates caller transcript sentiment across 5 core emotional spectrums (Calm, Happy, Anxious, Frustrated, Angry).
-* **Emotional Intensity Tracking:** Quantifies emotional stress on a scale of 1 to 10 for clinical triage.
+* **Emotional Intensity Tracking:** Quantifies detected emotional intensity on a scale of 1 to 10 to provide conversational insights.
 * **Trend Visualization:** Interactive area & bar charts using Recharts for daily/weekly mood trends.
 * **Automated Daily Mood Reports:** Background cron job computes sentiment averages and dispatches summary reports to clinic owners.
 
@@ -158,7 +159,7 @@ Clinicore/
 │   └── tsconfig.json
 ├── frontend/                 # React 19 Vite SPA Dashboard
 │   ├── src/
-│   │   ├── assets/           # Images & vector icons
+│   │   ├── assets/           # assets & icons
 │   │   ├── components/       # Reusable UI cards, tables, layout
 │   │   ├── hooks/            # Custom React hooks (auth, data fetch)
 │   │   ├── lib/              # Axios instance & token interceptors
@@ -245,9 +246,3 @@ VITE_API_BASE_URL=http://localhost:3000
 ## 🌐 Live Deployments
 - **Frontend App:** [Clinicore Dashboard](https://frontend-beta-amber-s2mrth6g7n.vercel.app)
 - **Backend REST API:** [Clinicore API Health](https://cheerful-balance-production-e7e3.up.railway.app/health)
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for details.
