@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://frontend-beta-amber-s2mrth6g7n.vercel.app" target="_blank">
+  <a href="https://clinicore-ebon.vercel.app/" target="_blank">
     <img src="https://img.shields.io/badge/🌐%20Live%20App-Clinicore-2EA44F?style=for-the-badge" alt="Live Demo" />
   </a>
   <a href="https://cheerful-balance-production-e7e3.up.railway.app/health" target="_blank">
@@ -244,5 +244,5 @@ VITE_API_BASE_URL=http://localhost:3000
 ---
 
 ## 🌐 Live Deployments
-- **Frontend App:** [Clinicore Dashboard](https://frontend-beta-amber-s2mrth6g7n.vercel.app)
+- **Frontend App:** [Clinicore Dashboard](https://clinicore-ebon.vercel.app/)
 - **Backend REST API:** [Clinicore API Health](https://cheerful-balance-production-e7e3.up.railway.app/health)
