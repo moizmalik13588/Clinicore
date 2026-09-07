@@ -119,27 +119,23 @@ export default function Dashboard() {
                     title="Total Patients"
                     value={data.stats.totalPatients.toLocaleString()}
                     icon={Users}
-                    color="blue"
                     sub={`+${data.stats.newPatientsThisMonth} this month`}
                 />
                 <StatCard
                     title="Calls Today"
                     value={data.stats.callsToday}
                     icon={Phone}
-                    color="purple"
                 />
                 <StatCard
                     title="Appointments"
                     value={data.stats.appointmentsToday}
                     icon={Calendar}
-                    color="green"
                     sub="Today"
                 />
                 <StatCard
                     title="Active Doctors"
                     value={data.stats.activeDoctors}
                     icon={UserCheck}
-                    color="cyan"
                 />
             </div>
 

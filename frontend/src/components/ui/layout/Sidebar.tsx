@@ -1,5 +1,4 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import {
     LayoutDashboard, Users, Calendar,
     Phone, Brain, Settings, LogOut,
@@ -56,11 +55,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 {/* Logo */}
                 <div className="flex items-center justify-between px-5 py-5 border-b border-dark-border">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-primary-600/20 rounded-lg flex items-center justify-center">
-                            <span className="text-base">🏥</span>
+                        <div className="w-8 h-8 bg-primary-600 text-white rounded-lg flex items-center justify-center">
+                            <Stethoscope size={16} />
                         </div>
                         <div>
-                            <p className="text-sm font-bold text-dark-text">Clinicore</p>
+                            <p className="text-sm font-bold text-dark-text tracking-tight">Clinicore</p>
                             <p className="text-[10px] text-dark-muted leading-none">Clinic OS</p>
                         </div>
                     </div>
@@ -70,7 +69,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 </div>
 
                 {/* Nav */}
-                <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+                <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                     {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
                         <NavLink
                             key={to}
@@ -78,18 +77,18 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                             onClick={() => { if (window.innerWidth < 1024) onClose(); }}
                             className={({ isActive }) => `
                 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
-                transition-colors group
+                transition-all group
                 ${isActive
-                                    ? 'bg-primary-600/20 text-primary-400 font-medium'
+                                    ? 'bg-primary-500/15 text-primary-700 font-semibold border-l-4 border-primary-600 pl-2.5 shadow-sm'
                                     : 'text-dark-muted hover:bg-dark-hover hover:text-dark-text'
                                 }
               `}
                         >
                             {({ isActive }) => (
                                 <>
-                                    <Icon size={17} className={isActive ? 'text-primary-400' : ''} />
+                                    <Icon size={17} className={isActive ? 'text-primary-600' : 'text-dark-muted'} />
                                     <span className="flex-1">{label}</span>
-                                    {isActive && <ChevronRight size={14} className="text-primary-400" />}
+                                    {isActive && <ChevronRight size={14} className="text-primary-600" />}
                                 </>
                             )}
                         </NavLink>
@@ -99,8 +98,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 {/* User + Logout */}
                 <div className="px-3 py-4 border-t border-dark-border space-y-1">
                     <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-dark-bg/50">
-                        <div className="w-7 h-7 rounded-full bg-primary-600/30 flex items-center justify-center">
-                            <span className="text-xs font-bold text-primary-400">
+                        <div className="w-7 h-7 rounded-full bg-primary-600/20 flex items-center justify-center">
+                            <span className="text-xs font-bold text-primary-600">
                                 {user?.email?.charAt(0).toUpperCase() || 'U'}
                             </span>
                         </div>

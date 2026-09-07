@@ -54,7 +54,11 @@ body {
   }
 
   .input {
-    @apply bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-sm text-dark-text placeholder-dark-muted focus:outline-none focus:border-primary-500 transition-colors w-full;
+    @apply bg-white border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-dark-text placeholder-dark-muted focus:outline-none focus:border-primary-600 transition-colors w-full shadow-sm;
+  }
+
+  .input-with-icon {
+    @apply input pl-12;
   }
 
   .badge {
@@ -77,7 +81,7 @@ body {
 
 /* ─── Input focus ring ───────────────────────────────────────────────────────*/
 .input:focus {
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
 }
 
 /* ─── Smooth transitions ─────────────────────────────────────────────────────*/

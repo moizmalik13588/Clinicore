@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { authApi } from '../lib/api';
 import { setTokens, setUser } from '../lib/auth';
 import { useToast } from '../components/ui/Toast';
 import Spinner from '../components/ui/Spinner';
+import { Stethoscope, User, Building2, Mail, Lock, Activity, Users, Shield } from 'lucide-react';
 
 type Step = 'register' | 'otp';
 
@@ -21,7 +22,6 @@ export default function Register() {
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // ─── Step 1: Register ────────────────────────────────────────────────────
     async function handleRegister(e: React.FormEvent) {
         e.preventDefault();
 
@@ -54,7 +54,6 @@ export default function Register() {
         }
     }
 
-    // ─── Step 2: Verify OTP ──────────────────────────────────────────────────
     async function handleOtp(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
@@ -75,118 +74,166 @@ export default function Register() {
     }
 
     return (
-        <div className="min-h-screen bg-dark-bg flex items-center justify-center px-4">
-            <div className="w-full max-w-md">
-
-                {/* Logo */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-600/20 rounded-2xl mb-4">
-                        <span className="text-2xl">🏥</span>
+        <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-dark-bg overflow-x-hidden">
+            {/* Left Side: Form Container */}
+            <div className="min-h-screen flex flex-col justify-between p-8 sm:p-12 lg:p-16 overflow-y-auto">
+                {/* Mobile Brand Header */}
+                <div className="flex items-center gap-3 lg:hidden">
+                    <div className="w-10 h-10 bg-primary-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-sm">
+                        <Stethoscope size={20} />
                     </div>
-                    <h1 className="text-2xl font-bold text-dark-text">Clinicore</h1>
-                    <p className="text-dark-muted text-sm mt-1">AI-Powered Clinic Management</p>
+                    <div>
+                        <span className="text-xl font-bold text-dark-text tracking-tight block">Clinicore</span>
+                        <span className="text-xs text-dark-muted">Clinical operations</span>
+                    </div>
                 </div>
 
-                <div className="card">
+                {/* Vertically centered form container */}
+                <div className="max-w-md w-full mx-auto lg:mx-0 my-auto py-8">
+                    {/* Desktop Logo */}
+                    <div className="hidden lg:flex items-center gap-3 mb-8">
+                        <div className="w-10 h-10 bg-primary-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-sm">
+                            <Stethoscope size={20} />
+                        </div>
+                        <div>
+                            <span className="text-xl font-bold text-dark-text tracking-tight block">Clinicore</span>
+                            <span className="text-xs text-dark-muted">Clinical operations</span>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2 mb-6">
+                        <h1 className="text-2xl font-bold text-dark-text tracking-tight">
+                            {step === 'register' ? 'Register Your Clinic' : 'Verify Email Address'}
+                        </h1>
+                        <p className="text-dark-muted text-sm leading-relaxed">
+                            {step === 'register'
+                                ? 'Create your primary administrator account to set up clinic operations.'
+                                : `Enter the 6-digit verification code sent to ${email}.`}
+                        </p>
+                    </div>
+
+                    {/* Segmented Pill-style Toggle */}
+                    {step === 'register' && (
+                        <div className="flex bg-slate-200/70 p-1 rounded-xl mb-6 shadow-inner">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/login')}
+                                className="flex-1 py-2 text-sm font-semibold rounded-lg text-dark-muted hover:text-dark-text transition-all"
+                            >
+                                Sign In
+                            </button>
+                            <button
+                                type="button"
+                                className="flex-1 py-2 text-sm font-semibold rounded-lg bg-white text-dark-text shadow-sm transition-all"
+                            >
+                                Register
+                            </button>
+                        </div>
+                    )}
+
                     {step === 'register' ? (
-                        <>
-                            <h2 className="text-lg font-semibold text-dark-text mb-1">Register Your Clinic</h2>
-                            <p className="text-xs text-dark-muted mb-6">
-                                Create a primary account for your clinic. Doctors and staff can be added later from your clinic dashboard.
-                            </p>
-                            <form onSubmit={handleRegister} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm text-dark-muted mb-1.5">Owner / Admin Full Name</label>
+                        <form onSubmit={handleRegister} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-dark-text mb-1.5">Administrator Full Name</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-dark-muted">
+                                        <User size={18} />
+                                    </div>
                                     <input
                                         type="text"
                                         className="input"
-                                        placeholder="Dr. John Doe"
+                                        style={{ paddingLeft: '48px' }}
+                                        placeholder="Dr. Jane Doe"
                                         value={name}
                                         onChange={e => setName(e.target.value)}
                                         required
                                         autoFocus
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm text-dark-muted mb-1.5">Clinic Name</label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-dark-text mb-1.5">Clinic Name</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-dark-muted">
+                                        <Building2 size={18} />
+                                    </div>
                                     <input
                                         type="text"
                                         className="input"
-                                        placeholder="City Health Clinic"
+                                        style={{ paddingLeft: '48px' }}
+                                        placeholder="Metro Health Clinic"
                                         value={clinicName}
                                         onChange={e => setClinicName(e.target.value)}
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm text-dark-muted mb-1.5">Email</label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-dark-text mb-1.5">Professional Email</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-dark-muted">
+                                        <Mail size={18} />
+                                    </div>
                                     <input
                                         type="email"
                                         className="input"
-                                        placeholder="owner@clinic.com"
+                                        style={{ paddingLeft: '48px' }}
+                                        placeholder="admin@clinic.com"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm text-dark-muted mb-1.5">Password</label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-dark-text mb-1.5">Password</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-dark-muted">
+                                        <Lock size={18} />
+                                    </div>
                                     <input
                                         type="password"
                                         className="input"
-                                        placeholder="••••••••"
+                                        style={{ paddingLeft: '48px' }}
+                                        placeholder="At least 8 characters"
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
                                         required
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm text-dark-muted mb-1.5">Confirm Password</label>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-dark-text mb-1.5">Confirm Password</label>
+                                <div className="relative">
+                                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-dark-muted">
+                                        <Lock size={18} />
+                                    </div>
                                     <input
                                         type="password"
                                         className="input"
+                                        style={{ paddingLeft: '48px' }}
                                         placeholder="••••••••"
                                         value={confirmPassword}
                                         onChange={e => setConfirmPassword(e.target.value)}
                                         required
                                     />
                                 </div>
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="btn-primary w-full flex items-center justify-center gap-2 py-2.5"
-                                >
-                                    {loading ? <Spinner size="sm" /> : null}
-                                    {loading ? 'Creating account...' : 'Sign Up'}
-                                </button>
-                            </form>
-
-                            <p className="text-center text-sm text-dark-muted mt-6">
-                                Already have an account?{' '}
-                                <Link to="/login" className="text-primary-500 hover:underline font-medium">
-                                    Sign In
-                                </Link>
-                            </p>
-                        </>
-                    ) : (
-                        <>
-                            <div className="flex items-center gap-3 mb-6">
-                                <button
-                                    onClick={() => { setStep('register'); setOtp(''); }}
-                                    className="text-dark-muted hover:text-dark-text transition-colors"
-                                >
-                                    ←
-                                </button>
-                                <div>
-                                    <h2 className="text-lg font-semibold text-dark-text">Verify Email</h2>
-                                    <p className="text-sm text-dark-muted">Code sent to {email}</p>
-                                </div>
                             </div>
-
-                            <form onSubmit={handleOtp} className="space-y-4">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn-primary w-full flex items-center justify-center gap-2 py-3 text-base shadow-sm mt-3 group"
+                            >
+                                {loading ? <Spinner size="sm" /> : null}
+                                {loading ? 'Creating account...' : <>Create Clinic Account <span className="text-base group-hover:translate-x-0.5 transition-transform">→</span></>}
+                            </button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleOtp} className="space-y-5">
+                            <div>
                                 <input
                                     type="text"
-                                    className="input text-center text-2xl tracking-[0.5em] font-bold"
+                                    className="input text-center text-3xl tracking-[0.75em] font-bold py-3.5"
                                     placeholder="000000"
                                     maxLength={6}
                                     value={otp}
@@ -194,32 +241,105 @@ export default function Register() {
                                     required
                                     autoFocus
                                 />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={loading || otp.length !== 6}
+                                className="btn-primary w-full flex items-center justify-center gap-2 py-3 text-base shadow-sm"
+                            >
+                                {loading ? <Spinner size="sm" /> : null}
+                                {loading ? 'Verifying...' : 'Verify & Complete Setup →'}
+                            </button>
+                            <div className="flex items-center justify-between text-sm pt-2">
                                 <button
-                                    type="submit"
-                                    disabled={loading || otp.length !== 6}
-                                    className="btn-primary w-full flex items-center justify-center gap-2 py-2.5"
+                                    type="button"
+                                    onClick={() => { setStep('register'); setOtp(''); }}
+                                    className="text-dark-muted hover:text-dark-text font-medium transition-colors"
                                 >
-                                    {loading ? <Spinner size="sm" /> : null}
-                                    {loading ? 'Verifying...' : 'Verify & Complete'}
+                                    ← Back to registration
                                 </button>
-                            </form>
-
-                            <p className="text-center text-sm text-dark-muted mt-4">
-                                Didn't receive code?{' '}
                                 <button
-                                    onClick={() => handleRegister({ preventDefault: () => { } } as any)}
-                                    className="text-primary-500 hover:underline"
+                                    type="button"
+                                    onClick={() => handleRegister({ preventDefault: () => {} } as any)}
+                                    className="text-primary-600 hover:text-primary-700 font-medium transition-colors"
                                 >
-                                    Resend
+                                    Resend Code
                                 </button>
-                            </p>
-                        </>
+                            </div>
+                        </form>
                     )}
                 </div>
 
-                <p className="text-center text-xs text-dark-muted mt-6">
-                    Clinicore Clinic OS v1.0
-                </p>
+                <div className="max-w-md w-full mx-auto lg:mx-0 text-xs text-dark-muted pt-6 border-t border-dark-border">
+                    Clinicore Clinical OS v1.0 • Secure Medical Workspace
+                </div>
+            </div>
+
+            {/* Right Side: Themed Clinical Panel */}
+            <div className="hidden lg:flex flex-col justify-between p-16 bg-gradient-to-br from-primary-600 via-primary-700 to-teal-900 text-white relative overflow-hidden">
+                {/* Subtle dot-grid background texture */}
+                <div className="absolute inset-0 opacity-[0.08] pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:18px_18px]"></div>
+
+                {/* Small decorative "+" marks in corners */}
+                <div className="absolute top-8 right-10 text-white/25 font-mono text-3xl select-none pointer-events-none">+</div>
+                <div className="absolute bottom-8 left-10 text-white/25 font-mono text-3xl select-none pointer-events-none">+</div>
+
+                {/* Right Panel Main Content matching reference structure */}
+                <div className="relative z-10 max-w-lg pt-4 pb-8">
+                    {/* Two side-by-side pill eyebrow badges */}
+                    <div className="flex flex-wrap items-center gap-2 mb-6">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-primary-100 tracking-wider uppercase shadow-sm">
+                            <span className="w-2 h-2 rounded-full bg-primary-300 animate-pulse"></span>
+                            AI-POWERED
+                        </div>
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold text-primary-100 tracking-wider uppercase shadow-sm">
+                            Multi-Tenant Clinic Management SaaS
+                        </div>
+                    </div>
+
+                    {/* Bold large heading */}
+                    <h2 className="text-4xl font-extrabold tracking-tight mb-3 leading-tight text-white">
+                        Clinical Operations OS.
+                    </h2>
+
+                    {/* One bold accent highlight line below it */}
+                    <p className="text-2xl font-bold text-primary-200 mb-6 tracking-tight">
+                        Scale Your Practice.
+                    </p>
+
+                    {/* Short paragraph */}
+                    <p className="text-primary-100 text-base leading-relaxed mb-10">
+                        Unified multi-tenant clinic management with automated voice triage and real-time analytics.
+                    </p>
+
+                    {/* 3-item feature checklist */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-primary-200 shrink-0 shadow-sm">
+                                <Building2 size={18} />
+                            </div>
+                            <span className="text-white font-medium text-base">Multi-tenant clinic setup</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-primary-200 shrink-0 shadow-sm">
+                                <Activity size={18} />
+                            </div>
+                            <span className="text-white font-medium text-base">AI voice call logs & triage</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-primary-200 shrink-0 shadow-sm">
+                                <Users size={18} />
+                            </div>
+                            <span className="text-white font-medium text-base">Patient mood & sentiment analytics</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer: PHI compliance badge */}
+                <div className="relative z-10 pt-6 border-t border-white/10 flex items-center gap-2.5 text-xs text-primary-200">
+                    <Shield size={14} className="text-primary-200" />
+                    <span>Protected Health Information (PHI) compliant architecture</span>
+                </div>
             </div>
         </div>
     );

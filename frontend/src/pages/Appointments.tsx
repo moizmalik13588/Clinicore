@@ -479,7 +479,8 @@ export default function Appointments() {
                 <div className="relative flex-1">
                     <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-muted" />
                     <input
-                        className="input pl-9"
+                        className="input"
+                        style={{ paddingLeft: '40px' }}
                         placeholder="Search patient..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
