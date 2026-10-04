@@ -104,8 +104,18 @@ export class VapiService {
 
     // ─── Helper: clinicId ─────────────────────────────────────────────────────
     async getClinicId(): Promise<string> {
-        if (env.CLINIC_ID) return env.CLINIC_ID;
-        const clinic = await prisma.clinic.findFirst({ select: { id: true } });
+        if (env.CLINIC_ID) {
+            const exists = await prisma.clinic.findUnique({
+                where: { id: env.CLINIC_ID },
+                select: { id: true },
+            });
+            if (exists) return exists.id;
+            console.warn('CLINIC_ID in .env not found in DB, falling back');
+        }
+        const clinic = await prisma.clinic.findFirst({
+            orderBy: { createdAt: 'asc' },
+            select: { id: true },
+        });
         return clinic?.id || '';
     }
 
@@ -170,6 +180,7 @@ export class VapiService {
     async getPatientInfo(args: { patientPhone: string }): Promise<string> {
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
 
             // Phone parse karo
             const phone = this.parsePhoneText(args.patientPhone || '');
@@ -220,6 +231,7 @@ export class VapiService {
 
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
 
             // Phone parse karo — text ya digits dono accept karo
             const phone = this.parsePhoneText(args.phone || '');
@@ -278,6 +290,7 @@ export class VapiService {
 
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
 
             // ─── Phone ────────────────────────────────────────────────────────────
             const phone = this.parsePhoneText(args.patientPhone || '');
@@ -426,6 +439,7 @@ export class VapiService {
     async cancelAppointment(args: { patientPhone: string }): Promise<string> {
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
             const phone = this.parsePhoneText(args.patientPhone || '');
 
             if (!phone) return `I need your phone number. Could you please provide it?`;
@@ -466,6 +480,7 @@ export class VapiService {
     async checkAppointments(args: { patientPhone: string }): Promise<string> {
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
             const phone = this.parsePhoneText(args.patientPhone || '');
 
             if (!phone) return `I need your phone number. Could you please provide it?`;
@@ -506,6 +521,7 @@ export class VapiService {
     async getAvailableSlots(args: { date: string; doctorName?: string }): Promise<string> {
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
             if (!args.date) return `Please tell me the date you are looking for. For example, July 15th.`;
 
             const date = new Date(args.date);
@@ -568,6 +584,7 @@ export class VapiService {
     async getDoctors(): Promise<string> {
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
             const doctors = await prisma.doctor.findMany({
                 where: { clinicId, isActive: true },
                 orderBy: { name: 'asc' },
@@ -589,6 +606,7 @@ export class VapiService {
     async recordComplaint(args: { patientPhone: string; complaint: string }): Promise<string> {
         try {
             const clinicId = await this.getClinicId();
+            if (!clinicId) return 'System not configured properly. Please contact support.';
             const phone = this.parsePhoneText(args.patientPhone || '');
 
             if (!phone) return `I have noted your concern: ${args.complaint}. Thank you.`;
@@ -625,6 +643,10 @@ export class VapiService {
             }
 
             const clinicId = await this.getClinicId();
+            if (!clinicId) {
+                console.warn('[Vapi] handleCallEnded: System not configured properly (no clinicId)');
+                return;
+            }
 
             const patient = phone
                 ? await prisma.patient.findFirst({ where: { phone, clinicId } })
